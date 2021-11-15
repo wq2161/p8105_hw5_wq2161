@@ -60,14 +60,20 @@ long_study =
   ) %>%
   mutate(
     week = substr(week, 6, 6),
-    week = as.integer(week)
+    week = as.integer(week),
+    subject_arm = substr(file_name, 1, 3)
+  ) %>%
+  rename(subject_id = file_name) %>%
+  relocate(subject_arm, subject_id) %>%
+  mutate(
+    subject_arm = factor(subject_arm, levels = c("con", "exp"), ordered = FALSE)
   )
 
 long_study
 
 long_study %>%
-  ggplot(aes(x = week, y = data_value)) +
-  geom_line(aes(color = file_name), alpha = .5) +
+  ggplot(aes(x = week, y = data_value, color = subject_id)) +
+  geom_line(alpha = .5) +
   labs(
     title = "Observations On Each Subject Over Time",
     x = "Week",
@@ -77,3 +83,47 @@ long_study %>%
 
 
 ## Problem 3
+
+Write a function that takes a vector as an argument; replaces missing values using the rules defined; returns the resulting vector.
+
+* For numeric variables, you should fill in missing values with the mean of non-missing values
+
+* For character variables, you should fill in missing values with "virginica"
+
+Apply this function to the columns of iris_with_missing using a map statement.
+
+```{r iris_with_missing}
+set.seed(10)
+
+iris_with_missing = iris %>% 
+  map_df(~replace(.x, sample(1:150, 20), NA)) %>%
+  mutate(Species = as.character(Species))
+
+refill_missing_value = function(column) {
+  
+  if (is.numeric(column)) {
+    column = replace_na(column, round(mean(column, na.rm = TRUE), digits = 1))
+  }
+  
+  if (is.character(column)) {
+    column = replace_na(column, "virginica")
+  }
+  
+  return(column)
+  
+}
+
+iris_refill_missing = map(iris_with_missing, refill_missing_value)
+
+iris_with_missing =
+  tibble(
+    Sepal.Length = iris_refill_missing[["Sepal.Length"]],
+    Sepal.Width = iris_refill_missing[["Sepal.Width"]],
+    Petal.Length = iris_refill_missing[["Petal.Length"]],
+    Petal.Width = iris_refill_missing[["Petal.Width"]],
+    Species = iris_refill_missing[["Species"]]
+  )
+
+iris_with_missing
+```
+
