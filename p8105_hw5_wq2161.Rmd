@@ -74,12 +74,21 @@ long_study
 long_study %>%
   ggplot(aes(x = week, y = data_value, color = subject_id)) +
   geom_line(alpha = .5) +
+  geom_point(aes(shape = subject_arm), size = 1.5, alpha = .5) +
   labs(
     title = "Observations On Each Subject Over Time",
     x = "Week",
     y = "Data"
+  ) + 
+  theme(
+    legend.box = "vertical",
+    legend.key.size = unit(0.5, "pt"),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
   )
 ```
+
+Based on the spaghetti plot, the data value of experimental group is generally greater than control group.
 
 
 ## Problem 3
@@ -115,7 +124,7 @@ refill_missing_value = function(column) {
 
 iris_refill_missing = map(iris_with_missing, refill_missing_value)
 
-iris_with_missing =
+iris_without_missing =
   tibble(
     Sepal.Length = iris_refill_missing[["Sepal.Length"]],
     Sepal.Width = iris_refill_missing[["Sepal.Width"]],
@@ -124,6 +133,6 @@ iris_with_missing =
     Species = iris_refill_missing[["Species"]]
   )
 
-iris_with_missing
+iris_without_missing
 ```
 
